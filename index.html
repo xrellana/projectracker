@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectTracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5', // Indigo 600
+                        secondary: '#10B981', // Emerald 500
+                        dark: '#1F2937', // Gray 800
+                        light: '#F3F4F6', // Gray 100
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="bg-primary/10 p-2 rounded-lg">
+                        <i class="fas fa-project-diagram text-primary text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900 tracking-tight">ProjectTracker</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="openModal()"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>New Task</span>
+                    </button>
+                    <div
+                        class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 cursor-pointer transition-colors">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Time Card -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8 flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900">Welcome back!</h2>
+                <p class="text-gray-500 text-sm mt-1">Here's what's happening with your projects today.</p>
+            </div>
+            <div class="text-right">
+                <div id="current-time-card" class="text-2xl font-bold text-gray-900 font-mono"></div>
+                <div id="current-date-card" class="text-sm font-medium text-gray-500 uppercase tracking-wide mt-1">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-500">Total Tasks</h3>
+                    <div class="p-2 bg-indigo-50 rounded-lg text-primary">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline">
+                    <span id="stat-total" class="text-3xl font-bold text-gray-900">0</span>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-500">In Progress</h3>
+                    <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                        <i class="fas fa-spinner"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline">
+                    <span id="stat-in-progress" class="text-3xl font-bold text-gray-900">0</span>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-500">Completed</h3>
+                    <div class="p-2 bg-emerald-50 rounded-lg text-secondary">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline">
+                    <span id="stat-completed" class="text-3xl font-bold text-gray-900">0</span>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-medium text-gray-500">Pending</h3>
+                    <div class="p-2 bg-orange-50 rounded-lg text-orange-500">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline">
+                    <span id="stat-pending" class="text-3xl font-bold text-gray-900">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task List Header -->
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-gray-900">Tasks by Status</h2>
+            <div class="flex gap-2">
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="Search tasks..."
+                        class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none w-64">
+                    <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Sections -->
+        <div class="space-y-8">
+            <!-- Pending Tasks Section -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-orange-50 px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-3">
+                        <div class="p-2 bg-orange-50 rounded-lg">
+                            <i class="fas fa-clock text-orange-500"></i>
+                        </div>
+                        Not Started
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Latest Note</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="task-list-pending" class="bg-white divide-y divide-gray-200">
+                            <!-- Pending tasks will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="empty-state-pending" class="hidden py-12 flex flex-col items-center justify-center text-center">
+                    <div class="bg-gray-100 p-4 rounded-full mb-4">
+                        <i class="fas fa-clipboard-list text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">No pending tasks</h3>
+                </div>
+            </div>
+
+            <!-- In Progress Tasks Section -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-blue-50 px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-3">
+                        <div class="p-2 bg-blue-50 rounded-lg">
+                            <i class="fas fa-spinner text-blue-600"></i>
+                        </div>
+                        In Progress
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Latest Note</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="task-list-progress" class="bg-white divide-y divide-gray-200">
+                            <!-- In-progress tasks will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="empty-state-progress" class="hidden py-12 flex flex-col items-center justify-center text-center">
+                    <div class="bg-gray-100 p-4 rounded-full mb-4">
+                        <i class="fas fa-clipboard-list text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">No in-progress tasks</h3>
+                </div>
+            </div>
+
+            <!-- Completed Tasks Section -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-emerald-50 px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-3">
+                        <div class="p-2 bg-emerald-50 rounded-lg">
+                            <i class="fas fa-check-circle text-emerald-500"></i>
+                        </div>
+                        Completed
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Latest Note</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="task-list-completed" class="bg-white divide-y divide-gray-200">
+                            <!-- Completed tasks will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="empty-state-completed" class="hidden py-12 flex flex-col items-center justify-center text-center">
+                    <div class="bg-gray-100 p-4 rounded-full mb-4">
+                        <i class="fas fa-clipboard-list text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">No completed tasks</h3>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="task-modal"
+        class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50 backdrop-blur-sm transition-opacity duration-300">
+        <div class="relative top-20 mx-auto p-0 border-0 w-full max-w-md shadow-lg rounded-xl bg-white overflow-hidden transform transition-all scale-95 opacity-0"
+            id="modal-content">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900" id="modal-title">New Task</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <form id="task-form" onsubmit="handleFormSubmit(event)">
+                    <input type="hidden" id="task-id">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                            Task Name
+                        </label>
+                        <input
+                            class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                            id="title" type="text" placeholder="e.g. Website Redesign" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="deadline">
+                                Deadline
+                            </label>
+                            <input
+                                class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                id="deadline" type="date" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="status">
+                                Status
+                            </label>
+                            <select
+                                class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                                id="status">
+                                <option value="Not Started">Not Started</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end gap-3">
+                        <button type="button" onclick="closeModal()"
+                            class="px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-md hover:shadow-lg transition-all">
+                            Save Task
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Details Modal -->
+    <div id="details-modal"
+        class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50 backdrop-blur-sm transition-opacity duration-300">
+        <div class="relative top-10 mx-auto p-0 border-0 w-full max-w-2xl shadow-lg rounded-xl bg-white overflow-hidden transform transition-all scale-95 opacity-0"
+            id="details-modal-content">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900" id="details-title">Project Title</h3>
+                    <span id="details-status"
+                        class="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 mt-1 inline-block">Status</span>
+                </div>
+                <button onclick="closeDetailsModal()"
+                    class="text-gray-400 hover:text-gray-500 focus:outline-none transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-6 bg-gray-50/50 h-[600px] flex flex-col">
+                <!-- Add Note Section -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex-shrink-0">
+                    <h4 class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-pen-to-square text-primary"></i> Add Project Update
+                    </h4>
+                    <form id="note-form" onsubmit="handleAddNote(event)">
+                        <input type="hidden" id="details-task-id">
+                        <div class="flex gap-3 mb-3">
+                            <div class="w-1/3">
+                                <input type="date" id="note-date" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            </div>
+                            <div class="w-2/3">
+                                <button type="submit"
+                                    class="w-full bg-primary hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                                    Add Note
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="note-content" required placeholder="Describe the progress, issues, or updates..."
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none h-20"></textarea>
+                    </form>
+                </div>
+
+                <!-- Timeline Section -->
+                <div class="flex-grow overflow-y-auto pr-2 custom-scrollbar">
+                    <h4
+                        class="text-sm font-bold text-gray-700 mb-4 sticky top-0 bg-gray-50/50 py-2 backdrop-blur-sm z-10">
+                        <i class="fas fa-history text-gray-400 mr-2"></i>Timeline
+                    </h4>
+                    <div id="notes-timeline"
+                        class="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-300 before:to-transparent">
+                        <!-- Notes will be injected here -->
+                    </div>
+                    <!-- Empty State for Notes -->
+                    <div id="notes-empty-state"
+                        class="hidden flex flex-col items-center justify-center py-8 text-gray-400">
+                        <i class="far fa-comment-dots text-4xl mb-2"></i>
+                        <p class="text-sm">No updates yet. Add your first note above!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal"
+        class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden overflow-y-auto h-full w-full z-[60] backdrop-blur-sm transition-opacity duration-300">
+        <div class="relative top-40 mx-auto p-0 border-0 w-full max-w-sm shadow-lg rounded-xl bg-white overflow-hidden transform transition-all scale-95 opacity-0"
+            id="confirm-modal-content">
+            <div class="p-6 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Confirm Delete</h3>
+                <p class="text-sm text-gray-500 mb-6" id="confirm-message">Are you sure you want to delete this?</p>
+                <div class="flex justify-center gap-3">
+                    <button onclick="closeConfirmModal()"
+                        class="px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors">
+                        Cancel
+                    </button>
+                    <button onclick="confirmDelete()"
+                        class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-md hover:shadow-lg transition-all">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
